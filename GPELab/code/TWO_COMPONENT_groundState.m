@@ -31,42 +31,45 @@ wr = 169*2*pi;   % radial trap frequency
 wz = 26*2*pi;    % axial trap frequncy
 
 % define scan values for delta and Omega or n1D
-%delta_values = linspace(-2,2,40);
-%delta_values = [-8 -7 -6 -5 -4 -3 -2.5 delta_values 2.5 3 4 5 6 7 8];
-delta_values = linspace(-8,8,65);
-%Omega_values = linspace(4*wr,20*wr,10);
-Omega_values = 15200*2*pi;
-%n_values = [3894613333.3333, 3293013333.3333,  2243413333.3333,1053013333.3333, 182613333.3333];
+
+delta_values = linspace(3,-3,40);
+delta_values = [9 8 7 6 5 4 delta_values -4 -5 -6 -7 -8 -9];
+Omega_values = [30400 15200 7600 3800 1900 950]*2*pi;
+%n_values = [3573307733.3333 3021339733.3333 2058331733.3333 966139733.3333 167547733.3333]; %n0 = 3.67
 %n_values = [4186709333.3333 3539989333.3333 2411669333.3333 1131989333.3333 196309333.3333]; % n0 =4.3
-n_values = [4478805333.3333, 3786965333.3333, 2579925333.3333, 1210965333.3333, 210005333.3333]; %n0=4.6
+n_values = [4293811200.0000 3630547200.0000 2473363200.0000 1160947200.0000 201331200.0000]; %n0=4.41
+%n_values = [4478805333.3333, 3786965333.3333, 2579925333.3333, 1210965333.3333, 210005333.3333]; %n0=4.6
 %n_values = [4868266666.6667, 4116266666.6667,2804266666.6667,1316266666.6667,228266666.6667]; % n0 = 5
-%n_values = [4434017280.0000, 3749095680.0000, 2554126080.0000, 1198855680.0000, 207905280.0000];
+
 
 %% initialize output vectors
-P = zeros(length(Omega_values),length(delta_values));
-P_up = zeros(length(Omega_values),length(delta_values));
-P_down = zeros(length(Omega_values),length(delta_values));
+n_line = length(n_values);
+n_col = length(delta_values);
 
-energy_1 = zeros(length(Omega_values),length(delta_values));
-energy_2 = zeros(length(Omega_values),length(delta_values));
-energy_tot = zeros(length(Omega_values),length(delta_values));
+P = zeros(n_line,n_col);
+P_up = zeros(n_line,n_col);
+P_down = zeros(n_line,n_col);
+energy_1 = zeros(n_line,n_col);
+energy_2 = zeros(n_line,n_col);
+energy_tot = zeros(n_line,n_col);
+IE = zeros(n_line,n_col);
+RE = zeros(n_line,n_col);
+PE = zeros(n_line,n_col);
+KE = zeros(n_line,n_col);
 
-sigma = zeros(length(Omega_values),length(delta_values));
-
-IE = zeros(length(Omega_values),length(delta_values));
-RE = zeros(length(Omega_values),length(delta_values));
-PE = zeros(length(Omega_values),length(delta_values));
-KE = zeros(length(Omega_values),length(delta_values));
 
 
 %% evaluate groung state
 j = 1;% scan of densities (N)
 for n1D = n_values
     n1D
-    Om = Omega_values
+    %delta = delta_values
+    Om = Omega_values(6)
+    
     i=1; %scan of detunings
     for delta = delta_values
-        delta 
+        delta
+        
         %-----------------------------------------------------------
         % Setting the data
         %-----------------------------------------------------------
@@ -121,7 +124,7 @@ for n1D = n_values
         
         %% Setting informations and outputs
         Outputs = OutputsINI_Var2d(Method);
-        Printing = 1;
+        Printing = 0;
         Evo = 300;
         Draw = 0;
         Print = Print_Var2d(Printing,Evo,Draw);
@@ -148,20 +151,6 @@ for n1D = n_values
         KE(j,i) = KineticEnergy(Phi_1,Delta,Geometry2D);
         PE(j,i) = PotentialEnergy(Phi_1,gamma_x,gamma_y,Geometry2D);
 
-        sigma(j,i) = ComputeSize(Phi_1);
-
-%         if delta == 2
-% 
-%             %     1D density profiles
-%             %     Compute probability densities in 2D ground state solution
-%             Psi1_1_density = abs(Phi_1{1}).^2;  %component 1
-%             Psi1_2_density = abs(Phi_1{2}).^2;  %component 2
-%             
-%             %     Integrate along the Y-direction to get 1D profile along X
-%             Y_vals = Geometry2D.Y(:,1);
-%             Density1_1D_1 = trapz(Y_vals, Psi1_1_density, 1); % Integrate along Y
-%             Density1_1D_2 = trapz(Y_vals, Psi1_2_density, 1); % Integrate along Y
-%         end
 
         
         i=i+1;
@@ -171,8 +160,8 @@ for n1D = n_values
     j=j+1;
 end
 
-outputFolder = 'C:\Users\Sarah\Documents\GitHub\Numerical-simulations\GPELab\outputs';  % Change this to your desired folder name
-%outputFolder = 'C:\Users\sarat\OneDrive\Documenti\GitHub\Numerical-simulations\GPELab\outputs';
+%outputFolder = 'C:\Users\sarat\OneDrive\Documenti\GitHub\Numerical-simulations\GPELab\outputs';  % Change this to your desired folder name
+outputFolder = 'C:\Users\Sarah\Documents\GitHub\Numerical-simulations\GPELab\outputs';
 fileName = 'output_data.mat';
 
 % Check if the folder exists, if not, create it
@@ -183,6 +172,5 @@ end
 % Save the variables into the .mat file inside the folder
 save(fullfile(outputFolder, fileName), 'Omega_values','delta_values', ...
     'energy_tot','PE','KE',"IE",'RE', ...
-    'P','P_down','P_up', ...
-    'sigma');
+    'P','P_down','P_up');
 beep;
